@@ -1,0 +1,139 @@
+hiresense-mvp2/
+│
+├── README.md
+├── pyproject.toml / requirements.txt
+├── .env.example
+├── .gitignore
+├── Makefile                         # common commands (run, test, lint)
+│
+├── config/                          # ALL behavior is driven from here
+│   ├── app_config.yaml              # app-level config (env, debug, paths)
+│   ├── profile_config.yaml          # role-based weight profiles
+│   ├── feature_weights.yaml         # base feature weights (0–1)
+│   ├── feature_strength_rules.yaml  # how strength is calculated
+│   ├── project_triggers.yaml        # verbs, patterns, confidence boosts
+│   ├── skills_dictionary.yaml       # normalized skill ontology
+│   ├── section_headers.yaml         # resume section detection rules
+│   └── privacy_policy.yaml          # masking, retention, compliance flags
+│
+├── data/
+│   ├── raw/                         # raw uploaded files (never edited)
+│   │   ├── resumes/
+│   │   └── job_descriptions/
+│   │
+│   ├── processed/                   # cleaned & structured outputs
+│   │   ├── resumes_json/
+│   │   ├── resumes_df/
+│   │   └── jd_df/
+│   │
+│   ├── embeddings/                  # cached embeddings
+│   │   ├── resumes/
+│   │   └── jds/
+│   │
+│   └── evaluation/                  # labeled data for metrics
+│       ├── resumes/
+│       ├── jds/
+│       └── ground_truth.csv
+│
+├── src/
+│   ├── core/                        # heart of the system (NO I/O)
+│   │   ├── pipeline.py              # orchestrates end-to-end flow
+│   │   ├── types.py                 # dataclasses / schemas
+│   │   ├── constants.py
+│   │   └── exceptions.py
+│   │
+│   ├── ingestion/                   # PDF/DOCX → raw text
+│   │   ├── pdf_extractor.py
+│   │   ├── ocr_fallback.py
+│   │   └── text_cleaner.py
+│   │
+│   ├── sectioning/                  # text → structured sections
+│   │   ├── rule_based.py
+│   │   ├── model_based.py           # optional (future)
+│   │   └── section_merger.py
+│   │
+│   ├── feature_extraction/          # sections → candidate JSON
+│   │   ├── extractor.py
+│   │   ├── normalizer.py
+│   │   ├── deduplicator.py
+│   │   ├── strength_calculator.py
+│   │   └── validators.py
+│   │
+│   ├── jd_processing/               # JD understanding
+│   │   ├── jd_parser.py
+│   │   ├── role_detector.py
+│   │   └── jd_importance.py
+│   │
+│   ├── embeddings/                  # semantic layer
+│   │   ├── encoder.py               # SBERT / MiniLM
+│   │   ├── similarity.py
+│   │   └── vector_store.py           # FAISS / Qdrant wrapper
+│   │
+│   ├── scoring/                     # ranking brain
+│   │   ├── weight_engine.py
+│   │   ├── score_aggregator.py
+│   │   ├── explanation_builder.py
+│   │   └── calibrator.py
+│   │
+│   ├── api/                         # FastAPI backend
+│   │   ├── main.py
+│   │   ├── dependencies.py
+│   │   ├── routes/
+│   │   │   ├── health.py
+│   │   │   ├── resume.py
+│   │   │   ├── jd.py
+│   │   │   ├── scoring.py
+│   │   │   └── feedback.py
+│   │   └── schemas/
+│   │       ├── resume.py
+│   │       ├── jd.py
+│   │       └── response.py
+│   │
+│   ├── ui/                          # Streamlit (MVP UI)
+│   │   ├── app.py
+│   │   ├── pages/
+│   │   │   ├── upload.py
+│   │   │   ├── results.py
+│   │   │   └── analytics.py
+│   │   └── components/
+│   │       ├── charts.py
+│   │       └── tables.py
+│   │
+│   ├── storage/                     # persistence layer
+│   │   ├── database.py
+│   │   ├── models.py
+│   │   └── repositories.py
+│   │
+│   ├── feedback/                    # human-in-the-loop
+│   │   ├── collector.py
+│   │   ├── label_store.py
+│   │   └── retrain_hooks.py
+│   │
+│   └── utils/                       # shared helpers
+│       ├── logging.py
+│       ├── hashing.py
+│       ├── time_utils.py
+│       └── pii_masking.py
+│
+├── experiments/                     # R&D playground (safe chaos)
+│   ├── notebooks/
+│   ├── model_trials/
+│   └── scoring_tests/
+│
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── regression/
+│
+├── docs/
+│   ├── architecture.md
+│   ├── pipeline_flow.md
+│   ├── scoring_logic.md
+│   ├── api_contract.md
+│   └── decisions_log.md             # WHY you chose what you chose
+│
+└── scripts/
+    ├── ingest_batch.py
+    ├── recompute_embeddings.py
+    ├── evaluate_model.py
+    └── migrate_from_mvp1.py
