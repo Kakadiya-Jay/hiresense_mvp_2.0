@@ -14,9 +14,15 @@ from src.ingestion.ocr_fallback import extract_text_with_ocr
 from src.ingestion import ingest_resume
 
 # result = ingest_resume("data/raw/scanned_resume.pdf")
-result = ingest_resume("data/raw/original_resume.pdf")
+result = ingest_resume("data/raw/outline_resume.pdf")
 
 print(result["status"])
 print(result["source"])
 print(len(result["cleaned_text"]))
 print(result["error"])
+
+print("*" * 5 + " META " + "*" * 5)
+print(result["meta"])
+
+print("*" * 5 + " CLEANED TEXT " + "*" * 5)
+print(result["cleaned_text"])

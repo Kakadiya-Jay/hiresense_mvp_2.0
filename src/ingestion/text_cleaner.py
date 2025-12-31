@@ -15,8 +15,9 @@ def _normalize_unicode(text: str) -> str:
 
 def _fix_broken_lines(text: str) -> str:
     """
-    Fix line breaks where sentences are broken mid-line,
-    while preserving real paragraph breaks.
+    VERY conservative fix:
+    - Only join hyphenated words
+    - Never merge bullets, headers, or list items
     """
     lines = text.splitlines()
     fixed_lines: List[str] = []
@@ -24,32 +25,34 @@ def _fix_broken_lines(text: str) -> str:
     buffer = ""
 
     for line in lines:
-        stripped = line.strip()
+        stripped = line.rstrip()
 
-        if not stripped:
+        # Preserve empty lines
+        if not stripped.strip():
             if buffer:
-                fixed_lines.append(buffer.strip())
+                fixed_lines.append(buffer)
                 buffer = ""
             fixed_lines.append("")
             continue
 
-        # If line ends with hyphen, join directly (word break)
-        if stripped.endswith("-"):
-            buffer += stripped[:-1]
-        else:
-            # If buffer exists, decide whether to merge
+        # Bullet or header → flush buffer
+        if stripped.lstrip().startswith(("●", "*", "-", "•")) or stripped.isupper():
             if buffer:
-                # Merge if previous line does not end sentence
-                if not re.search(r"[.!?:]$", buffer):
-                    buffer += " " + stripped
-                else:
-                    fixed_lines.append(buffer.strip())
-                    buffer = stripped
-            else:
-                buffer = stripped
+                fixed_lines.append(buffer)
+                buffer = ""
+            fixed_lines.append(stripped)
+            continue
+
+        # Hyphenated word join only
+        if buffer.endswith("-"):
+            buffer = buffer[:-1] + stripped.lstrip()
+        else:
+            if buffer:
+                fixed_lines.append(buffer)
+            buffer = stripped
 
     if buffer:
-        fixed_lines.append(buffer.strip())
+        fixed_lines.append(buffer)
 
     return "\n".join(fixed_lines)
 
